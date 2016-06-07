@@ -238,8 +238,10 @@ final class BE_Sidebar_Selector {
 		
 		// Custom Sidebars	
 		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
-		foreach( $widget_areas as $widget_area ) {
-			$options[$widget_area['id']] = esc_attr( $widget_area['name'] );
+		if( $widget_areas ) {
+			foreach( $widget_areas as $widget_area ) {
+				$options[$widget_area['id']] = esc_attr( $widget_area['name'] );
+			}
 		}
 		
 		$metabox = new_cmb2_box( array( 
