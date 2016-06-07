@@ -13,7 +13,8 @@ Create new sidebars, and select which sidebar is used when editing pages
 
 [Download the plugin here.](https://github.com/billerickson/be-sidebar-selector/archive/master.zip) Once installed, go to Appearance > Edit Widget Areas create new widget areas. Go to Appearance > Widgets to populate those widget areas with widgets. When editing a page, use the Sidebar Selector metabox to select which sidebar to use for that page.
 
-Place the following code in your theme wherever you'd like the sidebar to appear (typically in sidebar.php): `do_action( 'be_sidebar_selector' );`
+Place the following code in your theme wherever you'd like the sidebar to appear (typically in sidebar.php):  
+`do_action( 'be_sidebar_selector' );`
 
 ## Customization ##
 
