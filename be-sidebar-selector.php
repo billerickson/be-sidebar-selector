@@ -149,7 +149,7 @@ final class BE_Sidebar_Selector {
 		add_action( 'init',            array( $this, 'setup_variables' ) );
 				
 		// Register Widget Areas
-		add_action( 'wp_loaded',       array( $this, 'register_widget_areas' ), 20 );
+		add_action( 'wp_loaded',       array( $this, 'register_widget_areas' ) );
 		
 		// Display Sidebar
 		add_action( 'be_sidebar_selector', array( $this, 'display_sidebar' ) );
@@ -161,7 +161,8 @@ final class BE_Sidebar_Selector {
 		add_action( 'admin_init',      array( $this, 'register_options_page_setting' ) );
 		add_action( 'admin_menu',      array( $this, 'add_options_page' ) );
 		add_action( 'cmb2_admin_init', array( $this, 'add_options_page_metabox' ) );		
-
+		
+		
 	}
 	
 	/**
@@ -183,6 +184,28 @@ final class BE_Sidebar_Selector {
 	}
 	
 	/**
+	 * Register Widget Areas
+	 *
+	 * @since 1.0.0
+	 *
+	 */
+	function register_widget_areas() {
+		
+		// Default Sidebar
+		register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $this->default_sidebar ) );	
+		
+		// Custom Widget Areas
+		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
+		if( empty( $widget_areas ) )
+			return;
+			
+		foreach( $widget_areas as $args ) {
+			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
+		}
+
+	}
+
+	/**
 	 * Display Sidebar
 	 *
 	 * @since 1.0.0
@@ -195,7 +218,7 @@ final class BE_Sidebar_Selector {
 			$sidebar = get_post_meta( get_the_ID(), '_be_selected_sidebar', true );
 			
 		if( ! $sidebar )
-			$sidebar = $this->default_sidebar['id'];
+			$sidebar = $this->default_sidebar['id'];			
 			
 		if( is_active_sidebar( $sidebar ) )
 			dynamic_sidebar( $sidebar );
@@ -237,32 +260,6 @@ final class BE_Sidebar_Selector {
 		) );
 	}
 	
-	/**
-	 * Register Widget Areas
-	 *
-	 * @since 1.0.0
-	 *
-	 */
-	function register_widget_areas() {
-		
-		// Default Sidebar
-		register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', array( 
-			'name' => $this->default_sidebar['name'],
-			'id'   => $this->default_sidebar['id'],
-		) ) );
-	
-		
-		// Custom Widget Areas
-		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
-		if( empty( $widget_areas ) )
-			return;
-			
-		foreach( $widget_areas as $args ) {
-			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
-		}
-
-	}
-
 	/**
 	 * Register Option Page Setting
 	 *
