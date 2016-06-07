@@ -47,6 +47,22 @@ final class BE_Sidebar_Selector {
 	private $metabox_id = 'be_sidebar_selector_option_metabox';
 	
 	/**
+	 * Supported Post Types
+	 *
+	 * @since 1.0.0
+	 * @var array
+	 */
+	private $post_types;
+	
+	/**
+	 * Default Sidebar
+	 *
+	 * @since 1.0.0
+	 * @var array
+	 */
+	private $default_sidebar;
+	
+	/**
 	 * Options Page Title
 	 *
 	 * @since 1.0.0
@@ -128,30 +144,103 @@ final class BE_Sidebar_Selector {
 	 * @since 1.0.0
 	 */
 	public function hooks() {
+
+		// Setup Variables
+		add_action( 'init',            array( $this, 'setup_variables' ) );
+				
+		// Register Widget Areas
+		add_action( 'wp_loaded',       array( $this, 'register_widget_areas' ), 20 );
+		
+		// Metabox
+		add_action( 'cmb2_admin_init', array( $this, 'add_metabox' ) );
 		
 		// Option Page
-		add_action( 'init',            array( $this, 'set_option_page_title' ) );
 		add_action( 'admin_init',      array( $this, 'register_options_page_setting' ) );
 		add_action( 'admin_menu',      array( $this, 'add_options_page' ) );
-		add_action( 'cmb2_admin_init', array( $this, 'add_options_page_metabox' ) );
-		
-		// Register Widget Areas
-		add_action( 'wp_loaded',            array( $this, 'register_widget_areas' ), 20 );
+		add_action( 'cmb2_admin_init', array( $this, 'add_options_page_metabox' ) );		
 
 	}
 	
 	/**
-	 * Initialize things
+	 * Set option page title
 	 *
-	 * @since 1.0.o
+	 * @since 1.0.0
 	 */
-	public function set_option_page_title() {
+	public function setup_variables() {
 
+		// Post Types
+		$this->post_types = apply_filters( 'be_sidebar_selector_post_types', array( 'page' ) );
+		
+		// Default Sidebar
+		$this->default_sidebar = apply_filters( 'be_sidebar_selector_default_sidebar', array( 'name' => 'Default Sidebar', 'id' => 'default-sidebar' ) );
+		
 		// Set options page title
 		$this->options_page_title = __( 'Edit Widget Areas', 'be-sidebar-selector' );
 
 	}
 	
+	/**
+	 * Add Metabox
+	 *
+	 * @since 1.0.0 
+	 *
+	 */
+	function add_metabox() {
+
+
+		// Default Sidebar
+		$options = array( $this->default_sidebar['id'] = $this->default_sidebar['name'] );
+		
+		// Custom Sidebars	
+		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
+		foreach( $widget_areas as $widget_area ) {
+			$options[$widget_area['id']] = esc_attr( $widget_area['name'] );
+		}
+		
+		$metabox = new_cmb2_box( array( 
+			'id'           => 'be_sidebar_selector',
+			'title'        => __( 'Sidebar Selector', 'be-sidebar-selector' ),
+			'object_types' => $this->post_types,
+			'context'      => 'side',
+			'priority'     => 'low',
+			'show_names'   => false,
+		) );
+		
+		$metabox->add_field( array( 
+			'name'    => __( 'Selected Sidebar', 'be-sidebar-selector' ),
+			'id'      => '_be_selected_sidebar',
+			'type'    => 'select',
+			'default' => 'default',
+			'options' => $options,
+		) );
+	}
+	
+	/**
+	 * Register Widget Areas
+	 *
+	 * @since 1.0.0
+	 *
+	 */
+	function register_widget_areas() {
+		
+		// Default Sidebar
+		register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', array( 
+			'name' => $this->default_sidebar['name'],
+			'id'   => $this->default_sidebar['id'],
+		) ) );
+	
+		
+		// Custom Widget Areas
+		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
+		if( empty( $widget_areas ) )
+			return;
+			
+		foreach( $widget_areas as $args ) {
+			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
+		}
+
+	}
+
 	/**
 	 * Register Option Page Setting
 	 *
@@ -268,23 +357,6 @@ final class BE_Sidebar_Selector {
 		settings_errors( $this->key . '-notices' );
 	}
 	
-	/**
-	 * Register Widget Areas
-	 *
-	 * @since 1.0.0
-	 *
-	 */
-	function register_widget_areas() {
-	
-		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
-		if( empty( $widget_areas ) )
-			return;
-			
-		foreach( $widget_areas as $args ) {
-			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
-		}
-
-	}
 }
 
 /**
@@ -303,6 +375,7 @@ be_sidebar_selector();
 
 /**
  * Sanitize widget area slug 
+ * @todo see: https://github.com/billerickson/be-sidebar-selector/issues/1
  *
  * @since 1.0.0
  * @return string
