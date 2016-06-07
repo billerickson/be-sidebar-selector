@@ -233,8 +233,8 @@ final class BE_Sidebar_Selector {
 		) );
 		
 		$cmb->add_group_field( $group_field_id, array( 
-			'name'        => __( 'Slug', 'be-sidebar-selector' ),
-			'id'          => 'slug',
+			'name'        => __( 'ID', 'be-sidebar-selector' ),
+			'id'          => 'id',
 			'type'        => 'text',
 			'sanitization_cb' => 'sanitize_title',
 /*			'sanitization_cb' => 'be_sidebar_selection_sanitize_slug',
@@ -277,6 +277,12 @@ final class BE_Sidebar_Selector {
 	function register_widget_areas() {
 	
 		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
+		if( empty( $widget_areas ) )
+			return;
+			
+		foreach( $widget_areas as $args ) {
+			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
+		}
 
 	}
 }
