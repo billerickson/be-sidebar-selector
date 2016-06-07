@@ -129,30 +129,37 @@ final class BE_Sidebar_Selector {
 	 */
 	public function hooks() {
 		
-		add_action( 'init',            array( $this, 'options_page_title' ) );
-		add_action( 'admin_init',      array( $this, 'init' ) );
+		// Option Page
+		add_action( 'init',            array( $this, 'set_option_page_title' ) );
+		add_action( 'admin_init',      array( $this, 'register_options_page_setting' ) );
 		add_action( 'admin_menu',      array( $this, 'add_options_page' ) );
 		add_action( 'cmb2_admin_init', array( $this, 'add_options_page_metabox' ) );
+		
+		// Register Widget Areas
+		add_action( 'wp_loaded',            array( $this, 'register_widget_areas' ), 20 );
 
 	}
 	
 	/**
-	 * Options Page Title
+	 * Initialize things
 	 *
 	 * @since 1.0.o
 	 */
-	public function options_page_title() {
+	public function set_option_page_title() {
 
+		// Set options page title
 		$this->options_page_title = __( 'Edit Widget Areas', 'be-sidebar-selector' );
 
 	}
 	
 	/**
-	 * Register setting for options page
+	 * Register Option Page Setting
 	 *
 	 * @since 1.0.0
 	 */
-	public function init() {
+	public function register_options_page_setting() {
+	
+		// Register setting
 		register_setting( $this->key, $this->key );
 	}
 	
@@ -226,13 +233,24 @@ final class BE_Sidebar_Selector {
 		) );
 		
 		$cmb->add_group_field( $group_field_id, array( 
+			'name'        => __( 'Slug', 'be-sidebar-selector' ),
+			'id'          => 'slug',
+			'type'        => 'text',
+			'sanitization_cb' => 'sanitize_title',
+/*			'sanitization_cb' => 'be_sidebar_selection_sanitize_slug',
+			'attributes'  => array(
+				'disabled' => true,
+			)
+*/		) );
+		
+		$cmb->add_group_field( $group_field_id, array( 
 			'name'        => __( 'Description', 'be-sidebar-selector' ),
 			'id'          => 'description',
 			'type'        => 'textarea',
 		) );
 
 	}
-
+	
 	/**
 	 * Register settings notices for display
 	 *
@@ -249,21 +267,17 @@ final class BE_Sidebar_Selector {
 		add_settings_error( $this->key . '-notices', '', __( 'Settings updated.', 'be-sidebar-selector' ), 'updated' );
 		settings_errors( $this->key . '-notices' );
 	}
-
+	
 	/**
-	 * Public getter method for retrieving protected/private variables
+	 * Register Widget Areas
 	 *
-	 * @since  1.0.0
-	 * @param  string  $field Field to retrieve
-	 * @return mixed          Field value or exception is thrown
+	 * @since 1.0.0
+	 *
 	 */
-	public function __get( $field ) {
-		// Allowed fields to retrieve
-		if ( in_array( $field, array( 'key', 'metabox_id', 'title', 'options_page' ), true ) ) {
-			return $this->{$field};
-		}
+	function register_widget_areas() {
+	
+		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
 
-		throw new Exception( 'Invalid property: ' . $field );
 	}
 }
 
@@ -280,3 +294,17 @@ function be_sidebar_selector() {
 	return BE_Sidebar_Selector::instance();
 }
 be_sidebar_selector();
+
+/**
+ * Sanitize widget area slug 
+ *
+ * @since 1.0.0
+ * @return string
+ */
+function be_sidebar_selection_sanitize_slug( $value, $args, $field ) {
+
+	$name = sanitize_title( $field->group->value[$field->index]['name'] ) . '-sidebar';
+	$name = str_replace( '-sidebar-sidebar', '-sidebar', $name );
+	return $name;
+
+}
