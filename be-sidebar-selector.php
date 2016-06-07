@@ -146,10 +146,10 @@ final class BE_Sidebar_Selector {
 	public function hooks() {
 
 		// Setup Variables
-		add_action( 'init',            array( $this, 'setup_variables' ) );
+		add_action( 'widgets_init',            array( $this, 'setup_variables' ) );
 				
 		// Register Widget Areas
-		add_action( 'wp_loaded',       array( $this, 'register_widget_areas' ) );
+		add_action( 'widgets_init',       array( $this, 'register_widget_areas' ) );
 		
 		// Display Sidebar
 		add_action( 'be_sidebar_selector', array( $this, 'display_sidebar' ) );
@@ -195,15 +195,17 @@ final class BE_Sidebar_Selector {
 		register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $this->default_sidebar ) );	
 		
 		// Custom Widget Areas
-		$widget_areas = cmb2_get_option( $this->key, 'widget_areas' );
+		$widget_areas = get_option( $this->key )['widget_areas'];
 		if( empty( $widget_areas ) )
 			return;
-			
+		
 		foreach( $widget_areas as $args ) {
 			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
 		}
 
 	}
+	
+	
 
 	/**
 	 * Display Sidebar
