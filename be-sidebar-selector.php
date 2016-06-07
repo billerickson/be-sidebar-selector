@@ -192,7 +192,7 @@ final class BE_Sidebar_Selector {
 	function register_widget_areas() {
 		
 		// Default Sidebar
-		register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $this->default_sidebar ) );	
+		register_sidebar( wp_parse_args( $this->default_sidebar, apply_filters( 'be_sidebar_selector_widget_area_args', array() ) ) );	
 		
 		// Custom Widget Areas
 		$widget_areas = get_option( $this->key )['widget_areas'];
@@ -200,7 +200,7 @@ final class BE_Sidebar_Selector {
 			return;
 		
 		foreach( $widget_areas as $args ) {
-			register_sidebar( apply_filters( 'be_sidebar_selector_widget_area_args', $args ) );
+			register_sidebar( wp_parse_args( $args, apply_filters( 'be_sidebar_selector_widget_area_args', array() ) ) );
 		}
 
 	}
