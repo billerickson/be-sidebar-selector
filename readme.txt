@@ -1,7 +1,7 @@
 === BE Sidebar Selector ===
 Contributors: billerickson
 Tags: sidebar
-Requires at least: 4.3
+Requires at least: 4.1
 Tested up to: 4.5.2
 Stable tag: 1.0.0
 License: GPLv2 or later
