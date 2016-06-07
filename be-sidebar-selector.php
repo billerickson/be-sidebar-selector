@@ -151,6 +151,9 @@ final class BE_Sidebar_Selector {
 		// Register Widget Areas
 		add_action( 'wp_loaded',       array( $this, 'register_widget_areas' ), 20 );
 		
+		// Display Sidebar
+		add_action( 'be_sidebar_selector', array( $this, 'display_sidebar' ) );
+		
 		// Metabox
 		add_action( 'cmb2_admin_init', array( $this, 'add_metabox' ) );
 		
@@ -177,6 +180,25 @@ final class BE_Sidebar_Selector {
 		// Set options page title
 		$this->options_page_title = __( 'Edit Widget Areas', 'be-sidebar-selector' );
 
+	}
+	
+	/**
+	 * Display Sidebar
+	 *
+	 * @since 1.0.0
+	 */
+	function display_sidebar() {
+	
+		$sidebar = false;
+
+		if( is_singular( $this->post_types ) ) 
+			$sidebar = get_post_meta( get_the_ID(), '_be_selected_sidebar', true );
+			
+		if( ! $sidebar )
+			$sidebar = $this->default_sidebar['id'];
+			
+		if( is_active_sidebar( $sidebar ) )
+			dynamic_sidebar( $sidebar );
 	}
 	
 	/**
