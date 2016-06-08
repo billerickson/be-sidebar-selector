@@ -218,6 +218,8 @@ final class BE_Sidebar_Selector {
 
 		if( is_singular( $this->post_types ) ) 
 			$sidebar = get_post_meta( get_the_ID(), '_be_selected_sidebar', true );
+		
+		$sidebar = apply_filters( 'be_sidebar_selector_override', $sidebar );
 			
 		if( ! $sidebar )
 			$sidebar = $this->default_sidebar['id'];			
